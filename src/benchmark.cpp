@@ -933,13 +933,16 @@ void runJsonTests(const std::string& jsonFile) {
     std::cout << "Success rate: " << (static_cast<double>(passed) / testCases.size()) * 100 << "%" << std::endl;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     // Run original tests
     runTests();
-    
-    // Run tests from JSON file
-    std::string jsonFile = "d:\\XIAOMAO\\Microsoft\\OneDrive\\Desktop\\all_cases(1).json";
-    runJsonTests(jsonFile);
-    
+
+    // Run tests from a JSON file only when a path is provided as argument
+    if (argc > 1) {
+        runJsonTests(argv[1]);
+    } else {
+        std::cout << "\nNo JSON test file provided. Pass a path as a command-line argument to run JSON tests." << std::endl;
+    }
+
     return 0;
 }

@@ -1,0 +1,7 @@
+# 运行输出
+reports/
+
+# 编译产物
+benchmark
+*.o
+*.exe
