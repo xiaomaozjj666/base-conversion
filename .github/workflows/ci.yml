@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile C++ with g++
+        run: |
+          g++ -O2 -std=c++11 -Wall -Wextra src/benchmark.cpp -o benchmark
+          echo "compiled ok"
+
+      - name: C++ built-in tests
+        run: |
+          ./benchmark > cpp.txt
+          if grep -q FAIL cpp.txt; then echo "builtin FAIL found"; cat cpp.txt; exit 1; fi
+          n=$(grep -c PASS cpp.txt)
+          echo "C++ builtin PASS count: $n"
+          [ "$n" -ge 18 ] || { echo "expected >=18 PASS, got $n"; exit 1; }
+
+      - name: C++ JSON batch tests
+        run: |
+          cat > cases.json << 'EOF'
+          [
+            {"type":"TRANSLATION","input_base":10,"input_number":"255","output_base":16,"output_number":"FF"},
+            {"type":"TRANSLATION","input_base":16,"input_number":"FF","output_base":2,"output_number":"11111111"},
+            {"type":"TRANSLATION","input_base":3,"input_number":"100110","output_base":16,"output_number":"FF"},
+            {"type":"EXPRESSION","input_base":10,"input_number":"2+3","output_base":10,"output_number":"5"},
+            {"type":"EXPRESSION","input_base":10,"input_number":"10*5","output_base":10,"output_number":"50"},
+            {"type":"EXPRESSION","input_base":10,"input_number":"255+1","output_base":16,"output_number":"100"}
+          ]
+          EOF
+          ./benchmark cases.json > json.txt
+          grep -q "Passed: 6" json.txt || { echo "expected 6/6 JSON passes"; tail -20 json.txt; exit 1; }
+
+      - name: Python tests
+        run: |
+          python3 src/benchmark.py --test | tee py.txt
+          if grep -q FAIL py.txt; then exit 1; fi
+
+      - name: Node.js tests
+        run: |
+          node src/benchmark.js | tee js.txt
+          if grep -q FAIL js.txt; then exit 1; fi

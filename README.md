@@ -58,6 +58,28 @@ C++ 版除内置测试外，支持传入 JSON 测试用例文件路径作为命�
 
 不带参数时只运行内置测试。
 
+#### JSON 测试用例格式
+
+顶层为数组，每个用例是一个对象，字段如下：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `type` | string | `TRANSLATION`（进制转换）或 `EXPRESSION`（算术表达式求值后再转换） |
+| `input_base` | number | 输入进制（2–36），EXPRESSION 类型忽略 |
+| `input_number` | string | 输入数字，EXPRESSION 类型为算术表达式（如 `"2+3"`） |
+| `output_base` | number | 目标进制（2–36） |
+| `output_number` | string | 期望输出 |
+
+示例：
+
+```json
+[
+  {"type":"TRANSLATION","input_base":10,"input_number":"255","output_base":16,"output_number":"FF"},
+  {"type":"TRANSLATION","input_base":3,"input_number":"100110","output_base":16,"output_number":"FF"},
+  {"type":"EXPRESSION","input_base":10,"input_number":"2+3","output_base":10,"output_number":"5"}
+]
+```
+
 ## 配置
 
 本项目无需任何环境变量或配置文件。
