@@ -1,6 +1,46 @@
 # base-conversion
 
-一个用 C++、Python、JavaScript 三种语言实现的进制转换与算法时间复杂度演示项目，适合算法初学者对照学习。每份源码都包含同一组函数：任意进制互转、线性查找、二分查找与冒泡排序，并实测各自的执行耗时。
+<p align="center">
+  <img src="https://img.shields.io/badge/C%2B%2B-11-00599C" alt="C++11" />
+  <img src="https://img.shields.io/badge/Python-3-3776AB" alt="Python 3" />
+  <img src="https://img.shields.io/badge/Node.js-20%2B-539E43" alt="Node.js 20+" />
+  <img src="https://img.shields.io/badge/dependencies-none-brightgreen" alt="零第三方依赖" />
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
+</p>
+
+一个用 **C++、Python、JavaScript 三种语言**实现的进制转换与算法时间复杂度演示项目，适合算法初学者对照学习。每份源码都包含同一组函数：任意进制互转、线性查找、二分查找与冒泡排序，并**实测各自的执行耗时**。
+
+## 三语对照一览
+
+```mermaid
+flowchart LR
+    A[输入数字 / 进制] --> B{进制转换}
+    B --> C[任意进制互转<br/>2–36 · 负数 · 小数]
+    C --> D[便捷封装<br/>二进制 / 十六进制]
+    A --> E{算法演示}
+    E --> F[线性查找 O(n)]
+    E --> G[二分查找 O(log n)]
+    E --> H[冒泡排序 O(n²)]
+    F --> I[同一组函数<br/>C++ · Python · JavaScript]
+    G --> I
+    H --> I
+    I --> J[执行耗时实测对比]
+    D --> J
+```
+
+## 实测数据（2026-08-21 本机运行仓库源码）
+
+<p align="center">
+  <img src="docs/images/benchmark.svg" alt="三种语言算法耗时实测对比" width="100%" />
+</p>
+
+| 算法 | C++（MSVC /O2） | Python 3.14 | Node.js 24 |
+|---|---|---|---|
+| 线性查找 O(n)，n = 10 000 | ≈0 ms* | 0.2112 ms | 0.0897 ms |
+| 二分查找 O(log n)，n = 10 000 | ≈0 ms* | 0.0030 ms | 0.0073 ms |
+| 冒泡排序 O(n²)，n = 1 000 | 0.4 ms | 19.30 ms | 5.14 ms |
+
+\* C++ 线性/二分查找耗时低于 0.5 ms 计时精度（源码输出 0 ms），图中以刻度下限表示。
 
 ## 功能特性
 
@@ -92,5 +132,10 @@ base-conversion/
 │   ├── benchmark.cpp   # C++ 实现（含 JSON 批量测试框架）
 │   ├── benchmark.py    # Python 实现（含 --test / --convert CLI）
 │   └── benchmark.js    # Node.js 实现（含 --convert CLI）
+├── docs/images/        # 文档配图（实测对比图）
 └── reports/           # 运行输出目录（已被 .gitignore 排除，不入库）
 ```
+
+## 许可证
+
+[MIT License](LICENSE)
