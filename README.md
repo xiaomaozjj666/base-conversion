@@ -36,6 +36,8 @@ node    js/base_converter.js --test
 
 \* C++ 线性/二分查找耗时低于 0.5 ms 计时精度。
 
+![三语算法耗时实测图表](docs/images/benchmark.svg)
+
 ## 许可证
 
 [MIT License](LICENSE)
