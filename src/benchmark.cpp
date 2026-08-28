@@ -11,6 +11,8 @@
 #include <sstream>
 #include <map>
 #include <cctype>
+#include <cmath>
+#include <stdexcept>
 
 // ==================== Base Conversion Functions ====================
 
@@ -23,20 +25,20 @@
  */
 std::string decimalToBase(double decimal, int base) {
     if (base < 2 || base > 36) {
-        return "Invalid base";
+        throw std::invalid_argument("Invalid base");
     }
     if (decimal == 0) return "0";
-    
-    // Special case for base 10 with very large or very small numbers
-    if (base == 10) {
-        double absDecimal = std::abs(decimal);
-        if (absDecimal > 1e10 || absDecimal < 1e-6) {
-            std::stringstream ss;
-            ss << decimal;
-            return ss.str();
-        }
+
+    // Values beyond the long long range (or non-finite) would make the
+    // static_cast below undefined behavior; fall back to decimal scientific notation.
+    double absDecimal = std::abs(decimal);
+    if (!(absDecimal < 9.2233720368547758e18) ||
+        (base == 10 && (absDecimal > 1e10 || absDecimal < 1e-6))) {
+        std::stringstream ss;
+        ss << decimal;
+        return ss.str();
     }
-    
+
     static const std::string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     std::string result;
     result.reserve(64); // Preallocate space to avoid reallocations
@@ -95,7 +97,7 @@ std::string decimalToBase(double decimal, int base) {
  */
 double baseToDecimal(const std::string& number, int base) {
     if (base < 2 || base > 36) {
-        return -1; // Invalid base
+        throw std::invalid_argument("Invalid base");
     }
     
     // Special case for base 10 with scientific notation
@@ -103,14 +105,12 @@ double baseToDecimal(const std::string& number, int base) {
         size_t ePos = number.find('e');
         size_t EPos = number.find('E');
         if (ePos != std::string::npos || EPos != std::string::npos) {
-            try {
-                std::stringstream ss(number);
-                double value;
-                ss >> value;
-                return value;
-            } catch (...) {
-                return -1; // Invalid scientific notation
+            std::stringstream ss(number);
+            double value = 0.0;
+            if (!(ss >> value)) {
+                throw std::invalid_argument("Invalid scientific notation");
             }
+            return value;
         }
     }
     
@@ -138,7 +138,7 @@ double baseToDecimal(const std::string& number, int base) {
         char upperC = (c >= 'a' && c <= 'z') ? (c - 'a' + 'A') : c;
         size_t digitValue = digits.find(upperC);
         if (digitValue == std::string::npos || digitValue >= static_cast<size_t>(base)) {
-            return -1; // Invalid digit for the given base
+            throw std::invalid_argument("Invalid digit for the given base");
         }
         decimal = decimal * base + digitValue;
     }
@@ -151,7 +151,7 @@ double baseToDecimal(const std::string& number, int base) {
             char upperC = (c >= 'a' && c <= 'z') ? (c - 'a' + 'A') : c;
             size_t digitValue = digits.find(upperC);
             if (digitValue == std::string::npos || digitValue >= static_cast<size_t>(base)) {
-                return -1; // Invalid digit for the given base
+                throw std::invalid_argument("Invalid digit for the given base");
             }
             decimal += digitValue * factor;
             factor /= base;
@@ -175,11 +175,12 @@ double baseToDecimal(const std::string& number, int base) {
  * @return The representation of the number in the target base as a string
  */
 std::string baseToBase(const std::string& number, int sourceBase, int targetBase) {
-    double decimal = baseToDecimal(number, sourceBase);
-    if (decimal == -1) {
-        return "Invalid input";
+    try {
+        double decimal = baseToDecimal(number, sourceBase);
+        return decimalToBase(decimal, targetBase);
+    } catch (const std::exception& e) {
+        return std::string("Invalid input: ") + e.what();
     }
-    return decimalToBase(decimal, targetBase);
 }
 
 /**
@@ -232,7 +233,7 @@ double hexadecimalToDecimal(const std::string& hex) {
  * @return The index of the target, or -1 if not found
  */
 int linearSearch(const std::vector<int>& arr, int target) {
-    for (size_t i = 0; i < arr.size(); i++) {
+    for (int i = 0; i < static_cast<int>(arr.size()); i++) {
         if (arr[i] == target) {
             return i;
         }
@@ -249,7 +250,7 @@ int linearSearch(const std::vector<int>& arr, int target) {
  */
 int binarySearch(const std::vector<int>& arr, int target) {
     int left = 0;
-    int right = arr.size() - 1;
+    int right = static_cast<int>(arr.size()) - 1;
     
     while (left <= right) {
         int mid = left + (right - left) / 2;
@@ -271,7 +272,7 @@ int binarySearch(const std::vector<int>& arr, int target) {
  * @return The sorted array
  */
 std::vector<int> bubbleSort(std::vector<int> arr) {
-    int n = arr.size();
+    int n = static_cast<int>(arr.size());
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
             if (arr[j] > arr[j + 1]) {
@@ -351,41 +352,38 @@ std::string formatDouble(double value, int precision = 3) {
 
 // Simple expression evaluator for basic arithmetic operations
 double evaluateExpression(const std::string& expr) {
-    try {
-        // This is a very simple expression evaluator
-        // For more complex expressions, a proper parser would be needed
-        std::stringstream ss(expr);
-        double result;
-        ss >> result;
-        
-        char op;
-        double operand;
-        while (ss >> op >> operand) {
-            switch (op) {
-                case '+':
-                    result += operand;
-                    break;
-                case '-':
-                    result -= operand;
-                    break;
-                case '*':
-                    result *= operand;
-                    break;
-                case '/':
-                    if (operand != 0) {
-                        result /= operand;
-                    } else {
-                        return -1; // Division by zero
-                    }
-                    break;
-                default:
-                    return -1; // Invalid operator
-            }
-        }
-        return result;
-    } catch (...) {
-        return -1; // Invalid expression
+    // This is a very simple expression evaluator
+    // For more complex expressions, a proper parser would be needed
+    std::stringstream ss(expr);
+    double result = 0.0;
+    if (!(ss >> result)) {
+        throw std::invalid_argument("Invalid expression");
     }
+
+    char op;
+    double operand;
+    while (ss >> op >> operand) {
+        switch (op) {
+            case '+':
+                result += operand;
+                break;
+            case '-':
+                result -= operand;
+                break;
+            case '*':
+                result *= operand;
+                break;
+            case '/':
+                if (operand == 0) {
+                    throw std::invalid_argument("Division by zero");
+                }
+                result /= operand;
+                break;
+            default:
+                throw std::invalid_argument("Invalid operator");
+        }
+    }
+    return result;
 }
 
 /**
@@ -640,7 +638,7 @@ inline std::string trim(const std::string& s) {
 
 // Skip whitespace
 inline void skipWhitespace(const std::string& content, size_t& pos) {
-    while (pos < content.size() && std::isspace(content[pos])) {
+    while (pos < content.size() && std::isspace(static_cast<unsigned char>(content[pos]))) {
         pos++;
     }
 }
@@ -671,13 +669,18 @@ inline std::string parseString(const std::string& content, size_t& pos) {
 inline int parseNumber(const std::string& content, size_t& pos) {
     skipWhitespace(content, pos);
     size_t start = pos;
-    while (pos < content.size() && (std::isdigit(content[pos]) || content[pos] == '-')) {
+    while (pos < content.size() &&
+           (std::isdigit(static_cast<unsigned char>(content[pos])) || content[pos] == '-')) {
         pos++;
     }
     if (start == pos) {
         return 0;
     }
-    return std::stoi(content.substr(start, pos - start));
+    try {
+        return std::stoi(content.substr(start, pos - start));
+    } catch (const std::exception&) {
+        return 0; // Malformed or out-of-range number
+    }
 }
 
 // Parse JSON object
@@ -768,6 +771,10 @@ std::vector<TestCase> parseTestCases(const std::string& jsonFile) {
 // Run tests from JSON file
 void runJsonTests(const std::string& jsonFile) {
     std::vector<TestCase> testCases = parseTestCases(jsonFile);
+    if (testCases.empty()) {
+        std::cerr << "No test cases found in " << jsonFile << std::endl;
+        return;
+    }
     std::cout << "Running " << testCases.size() << " test cases from JSON file" << std::endl;
     
     int passed = 0;
@@ -783,60 +790,39 @@ void runJsonTests(const std::string& jsonFile) {
         auto start = std::chrono::high_resolution_clock::now();
         
         if (tc.type == "TRANSLATION") {
-            // Handle translation test
-            double decimal = baseToDecimal(tc.input_number, tc.input_base);
-            if (decimal == -1) {
-                result = "ERROR";
-            } else {
-                // Convert to target base
+            try {
+                double decimal = baseToDecimal(tc.input_number, tc.input_base);
                 result = decimalToBase(decimal, tc.output_base);
-                
+
                 // Handle special cases where expected output is the same as input
                 if (tc.output_base == tc.input_base && tc.output_number == tc.input_number) {
                     result = tc.input_number;
                 }
-                
+
                 // Handle cases where expected output is just the decimal value
                 if (tc.output_base == 10 && tc.output_number.find('.') != std::string::npos) {
-                    // Try to parse and format to match expected precision
-                    try {
-                        double expectedVal = parseDouble(tc.output_number);
-                        int precision = 3;
-                        // Determine precision from expected output
-                        size_t dotPos = tc.output_number.find('.');
-                        if (dotPos != std::string::npos) {
-                            precision = tc.output_number.length() - dotPos - 1;
-                        }
-                        result = formatDouble(decimal, precision);
-                    } catch (...) {
-                        // If parsing fails, use the original result
-                    }
+                    // Format to match the expected output precision
+                    size_t dotPos = tc.output_number.find('.');
+                    int precision = static_cast<int>(tc.output_number.length() - dotPos - 1);
+                    result = formatDouble(decimal, precision);
                 }
+            } catch (const std::exception&) {
+                result = "ERROR";
             }
         } else if (tc.type == "EXPRESSION") {
-            // Handle expression evaluation
-            double exprResult = evaluateExpression(tc.input_number);
-            if (exprResult == -1) {
-                result = "ERROR";
-            } else {
-                // Convert the result to the target base
+            try {
+                double exprResult = evaluateExpression(tc.input_number);
                 result = decimalToBase(exprResult, tc.output_base);
-                
+
                 // Handle cases where expected output is in decimal format
                 if (tc.output_base == 10 && tc.output_number.find('.') != std::string::npos) {
-                    try {
-                        double expectedVal = parseDouble(tc.output_number);
-                        int precision = 3;
-                        // Determine precision from expected output
-                        size_t dotPos = tc.output_number.find('.');
-                        if (dotPos != std::string::npos) {
-                            precision = tc.output_number.length() - dotPos - 1;
-                        }
-                        result = formatDouble(exprResult, precision);
-                    } catch (...) {
-                        // If parsing fails, use the original result
-                    }
+                    // Format to match the expected output precision
+                    size_t dotPos = tc.output_number.find('.');
+                    int precision = static_cast<int>(tc.output_number.length() - dotPos - 1);
+                    result = formatDouble(exprResult, precision);
                 }
+            } catch (const std::exception&) {
+                result = "ERROR";
             }
         }
         
@@ -847,31 +833,13 @@ void runJsonTests(const std::string& jsonFile) {
         std::cout << "Execution time: " << duration.count() / 1000.0 << "ms" << std::endl;
         
         // Time complexity analysis
-        std::cout << "Time Complexity Analysis: " << std::endl;
-        if (tc.type == "TRANSLATION") {
-            std::cout << "  - baseToDecimal: O(n) where n is the length of input string" << std::endl;
-            std::cout << "    * Single pass through each character of the input string" << std::endl;
-            std::cout << "    * Each character is processed exactly once" << std::endl;
-            std::cout << "  - decimalToBase: O(log_b m) where b is target base, m is decimal value" << std::endl;
-            std::cout << "    * Each iteration divides the number by the base" << std::endl;
-            std::cout << "    * Number of iterations is logarithmic with respect to the input value" << std::endl;
-            std::cout << "  - Overall: O(n + log_b m)" << std::endl;
-            std::cout << "    * Sum of the two complexities since they are executed sequentially" << std::endl;
-        } else if (tc.type == "EXPRESSION") {
-            std::cout << "  - evaluateExpression: O(n) where n is the length of expression" << std::endl;
-            std::cout << "    * Single pass through each token in the expression" << std::endl;
-            std::cout << "    * Each token is processed exactly once" << std::endl;
-            std::cout << "  - decimalToBase: O(log_b m) where b is target base, m is result value" << std::endl;
-            std::cout << "    * Each iteration divides the number by the base" << std::endl;
-            std::cout << "    * Number of iterations is logarithmic with respect to the result value" << std::endl;
-            std::cout << "  - Overall: O(n + log_b m)" << std::endl;
-            std::cout << "    * Sum of the two complexities since they are executed sequentially" << std::endl;
-        }
-        std::cout << "Big O Notation: O(" << (tc.type == "TRANSLATION" || tc.type == "EXPRESSION" ? "n + log_b m" : "1") << ")" << std::endl;
+        std::cout << "Time Complexity: "
+                  << (tc.type == "TRANSLATION" || tc.type == "EXPRESSION" ? "O(n + log_b m)" : "O(1)")
+                  << std::endl;
         
         // Compare results with some tolerance for floating point differences
         bool passedTest = false;
-        
+
         // Exact string match
         if (result == tc.output_number) {
             passedTest = true;
@@ -879,41 +847,37 @@ void runJsonTests(const std::string& jsonFile) {
             passedTest = true;
         } else if (tc.output_base == 10) {
             // For decimal output, compare as numbers with tolerance
-            try {
-                double resultVal = parseDouble(result);
-                double expectedVal = parseDouble(tc.output_number);
-                // Allow small epsilon for floating point differences
-                if (std::abs(resultVal - expectedVal) < 1e-6) {
-                    passedTest = true;
-                }
-            } catch (...) {
-                // If parsing fails, try other comparison methods
+            double resultVal = parseDouble(result);
+            double expectedVal = parseDouble(tc.output_number);
+            // Allow small epsilon for floating point differences
+            if (std::abs(resultVal - expectedVal) < 1e-6) {
+                passedTest = true;
             }
         } else {
             // For non-decimal bases, handle case-insensitive comparison
             std::string resultUpper = result;
             std::string expectedUpper = tc.output_number;
-            std::transform(resultUpper.begin(), resultUpper.end(), resultUpper.begin(), ::toupper);
-            std::transform(expectedUpper.begin(), expectedUpper.end(), expectedUpper.begin(), ::toupper);
-            
+            std::transform(resultUpper.begin(), resultUpper.end(), resultUpper.begin(),
+                           [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+            std::transform(expectedUpper.begin(), expectedUpper.end(), expectedUpper.begin(),
+                           [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+
             if (resultUpper == expectedUpper) {
                 passedTest = true;
             }
         }
-        
+
         // If still not passed, try to compare as numbers for any base
-        if (!passedTest && tc.output_base >= 2 && tc.output_base <= 36) {
+        if (!passedTest) {
             try {
                 double resultVal = baseToDecimal(result, tc.output_base);
                 double expectedVal = baseToDecimal(tc.output_number, tc.output_base);
-                if (resultVal != -1 && expectedVal != -1) {
-                    // Allow small epsilon for floating point differences
-                    if (std::abs(resultVal - expectedVal) < 1e-6) {
-                        passedTest = true;
-                    }
+                // Allow small epsilon for floating point differences
+                if (std::abs(resultVal - expectedVal) < 1e-6) {
+                    passedTest = true;
                 }
-            } catch (...) {
-                // If all else fails, use exact string comparison
+            } catch (const std::exception&) {
+                // Values not parseable in the output base - keep the string verdict
             }
         }
         

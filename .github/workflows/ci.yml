@@ -32,11 +32,15 @@ jobs:
             {"type":"TRANSLATION","input_base":3,"input_number":"100110","output_base":16,"output_number":"FF"},
             {"type":"EXPRESSION","input_base":10,"input_number":"2+3","output_base":10,"output_number":"5"},
             {"type":"EXPRESSION","input_base":10,"input_number":"10*5","output_base":10,"output_number":"50"},
-            {"type":"EXPRESSION","input_base":10,"input_number":"255+1","output_base":16,"output_number":"100"}
+            {"type":"EXPRESSION","input_base":10,"input_number":"255+1","output_base":16,"output_number":"100"},
+            {"type":"TRANSLATION","input_base":10,"input_number":"-1","output_base":2,"output_number":"-1"},
+            {"type":"EXPRESSION","input_base":10,"input_number":"0-1","output_base":10,"output_number":"-1"},
+            {"type":"EXPRESSION","input_base":10,"input_number":"1/0","output_base":10,"output_number":"ERROR"},
+            {"type":"TRANSLATION","input_base":2,"input_number":"ZZ","output_base":10,"output_number":"ERROR"}
           ]
           EOF
           ./benchmark cases.json > json.txt
-          grep -q "Passed: 6" json.txt || { echo "expected 6/6 JSON passes"; tail -20 json.txt; exit 1; }
+          grep -q "Passed: 10" json.txt || { echo "expected 10/10 JSON passes"; tail -20 json.txt; exit 1; }
 
       - name: Python tests
         run: |

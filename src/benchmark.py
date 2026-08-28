@@ -4,27 +4,48 @@ import time, random, sys, argparse
 
 DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-def decimal_to_base(n: int, base: int) -> str:
-    if n == 0: return "0"
+def decimal_to_base(n, base: int) -> str:
     if base < 2 or base > 36: raise ValueError("base must be 2-36")
+    if isinstance(n, float):
+        if not n.is_integer(): raise ValueError("only integers are supported")
+        n = int(n)
+    if n == 0: return "0"
+    sign = "-" if n < 0 else ""
+    n = abs(n)
     res = []
     while n > 0:
         res.append(DIGITS[n % base])
         n //= base
-    return "".join(reversed(res))
+    return sign + "".join(reversed(res))
 
-def base_to_decimal(s: str, base: int) -> int:
-    n = 0
-    for ch in s.upper():
+def base_to_decimal(s: str, base: int):
+    if base < 2 or base > 36: raise ValueError("base must be 2-36")
+    s = s.upper()
+    sign = 1
+    if s.startswith("-"): sign, s = -1, s[1:]
+    elif s.startswith("+"): s = s[1:]
+    def digit_val(ch):
         v = DIGITS.find(ch)
         if v == -1 or v >= base: raise ValueError(f"invalid digit '{ch}' for base {base}")
-        n = n * base + v
-    return n
+        return v
+    if "." in s:
+        int_part, frac_part = s.split(".", 1)
+        value = 0.0
+        for ch in int_part: value = value * base + digit_val(ch)
+        factor = 1.0 / base
+        for ch in frac_part:
+            value += digit_val(ch) * factor
+            factor /= base
+        return sign * value
+    n = 0
+    for ch in s:
+        n = n * base + digit_val(ch)
+    return sign * n
 
 def decimal_to_binary(n: int) -> str: return decimal_to_base(n, 2)
-def binary_to_decimal(s: str) -> int: return base_to_decimal(s, 2)
+def binary_to_decimal(s: str): return base_to_decimal(s, 2)
 def decimal_to_hex(n: int) -> str: return decimal_to_base(n, 16)
-def hex_to_decimal(s: str) -> int: return base_to_decimal(s, 16)
+def hex_to_decimal(s: str): return base_to_decimal(s, 16)
 
 def linear_search(arr, target):
     for i, v in enumerate(arr):
@@ -97,7 +118,10 @@ def run_convert(args):
     try:
         if args.from_base and args.to_base:
             dec = base_to_decimal(args.number, args.from_base)
-            res = decimal_to_base(dec, args.to_base)
+            if args.to_base == 10:
+                res = dec
+            else:
+                res = decimal_to_base(dec, args.to_base)
         elif args.from_base:
             print(base_to_decimal(args.number, args.from_base))
             return

@@ -3,23 +3,39 @@
 const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function decimalToBase(n, base) {
+  if (!Number.isInteger(base) || base < 2 || base > 36) throw new Error("base must be 2-36");
+  if (!Number.isInteger(n)) throw new Error("only integers are supported");
   if (n === 0) return "0";
+  const sign = n < 0 ? "-" : "";
+  n = Math.abs(n);
   const res = [];
   while (n > 0) {
     res.push(DIGITS[n % base]);
     n = Math.floor(n / base);
   }
-  return res.reverse().join("");
+  return sign + res.reverse().join("");
 }
 
 function baseToDecimal(s, base) {
-  let n = 0;
-  for (const ch of s.toUpperCase()) {
+  if (!Number.isInteger(base) || base < 2 || base > 36) throw new Error("base must be 2-36");
+  s = String(s).toUpperCase();
+  let sign = 1;
+  if (s.startsWith("-")) { sign = -1; s = s.slice(1); }
+  else if (s.startsWith("+")) { s = s.slice(1); }
+  const digitVal = (ch) => {
     const v = DIGITS.indexOf(ch);
     if (v === -1 || v >= base) throw new Error(`invalid digit '${ch}' for base ${base}`);
-    n = n * base + v;
+    return v;
+  };
+  const parts = s.split(".");
+  if (parts.length > 2) throw new Error(`invalid digit '.' for base ${base}`);
+  let n = 0;
+  for (const ch of parts[0]) n = n * base + digitVal(ch);
+  if (parts.length === 2) {
+    let factor = 1 / base;
+    for (const ch of parts[1]) { n += digitVal(ch) * factor; factor /= base; }
   }
-  return n;
+  return n === 0 ? 0 : sign * n;
 }
 
 function decimalToBinary(n) { return decimalToBase(n, 2); }
@@ -97,7 +113,8 @@ if (mode === "--convert") {
   const fromB = parseInt(process.argv[4] || "10", 10);
   const toB = parseInt(process.argv[5] || "10", 10);
   try {
-    console.log(decimalToBase(baseToDecimal(num, fromB), toB));
+    const dec = baseToDecimal(num, fromB);
+    console.log(toB === 10 ? dec : decimalToBase(dec, toB));
   } catch(e) { console.error("Error:", e.message); process.exit(1); }
 } else {
   runTests();
