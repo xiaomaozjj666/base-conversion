@@ -38,6 +38,8 @@ node    js/base_converter.js --test
 
 ![三语算法耗时实测图表](docs/images/benchmark.svg)
 
+> 🛠 2026-08-29 归档后做过一次健壮性修复：三语转换器负数/小数解析与错误处理加固，CI 回归用例 6 → 10（详见 `git log`），此后继续封存不再维护。
+
 ## 许可证
 
 [MIT License](LICENSE)

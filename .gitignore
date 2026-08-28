@@ -4,4 +4,8 @@ reports/
 # 编译产物
 benchmark
 *.o
+*.obj
 *.exe
+
+# Python
+__pycache__/

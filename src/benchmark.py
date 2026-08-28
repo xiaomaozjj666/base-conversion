@@ -74,7 +74,7 @@ def test_conv(name, got, expected):
     ok = got == expected
     print(f"  {name}: {got} (expected {expected}) {'PASS' if ok else 'FAIL'}")
 
-def run_tests(args):
+def run_tests():
     print("=== 进制转换测试 ===\n")
     print("Decimal to Binary:")
     for n, e in [(0,"0"),(1,"1"),(10,"1010"),(255,"11111111")]:
@@ -142,4 +142,4 @@ if __name__ == "__main__":
     if args.convert:
         run_convert(args)
     else:
-        run_tests(args)
+        run_tests()
