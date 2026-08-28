@@ -7,7 +7,7 @@
 > - [`js/base_converter.js`](https://github.com/xiaomaozjj666/programming-exercises/blob/main/js/base_converter.js)（`BigInt`，避免 2^53 精度丢失）
 > - [`cpp/base_converter.cpp`](https://github.com/xiaomaozjj666/programming-exercises/blob/main/cpp/base_converter.cpp)（`long long` + `double`，教学示例）
 >
-> 本仓库保留 `src/benchmark.*`（三语算法耗时实测）与 `docs/images/benchmark.svg`（实测图表）作历史归档，不再维护。
+> 本仓库内容已全部并入 [programming-exercises](https://github.com/xiaomaozjj666/programming-exercises)：进制转换 → `python|js|cpp/base_converter.*`，benchmark 源码与图表 → [`benchmark/`](https://github.com/xiaomaozjj666/programming-exercises/tree/main/benchmark)（2026-08-29 迁移）。本仓库纯作历史归档，不再维护。
 
 ## 快速开始（新位置）
 
@@ -26,7 +26,7 @@ node    js/base_converter.js --test
 
 ## 归档内容
 
-本仓库保留的 benchmark 源码（内含三语进制转换实现与查找/排序算法）与实测数据（2026-08-21 本机实测）：
+本仓库的历史 benchmark 实测数据（2026-08-21 本机实测；源码已并入 programming-exercises 的 [`benchmark/`](https://github.com/xiaomaozjj666/programming-exercises/tree/main/benchmark) 目录）：
 
 | 算法 | C++（MSVC /O2） | Python 3.14 | Node.js 24 |
 |---|---|---|---|
