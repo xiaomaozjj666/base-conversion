@@ -26,7 +26,7 @@ node    js/base_converter.js --test
 
 ## 归档内容
 
-本仓库保留的 benchmark 源码与实测数据（2026-08-21 本机实测）：
+本仓库保留的 benchmark 源码（内含三语进制转换实现与查找/排序算法）与实测数据（2026-08-21 本机实测）：
 
 | 算法 | C++（MSVC /O2） | Python 3.14 | Node.js 24 |
 |---|---|---|---|
@@ -39,6 +39,26 @@ node    js/base_converter.js --test
 ![三语算法耗时实测图表](docs/images/benchmark.svg)
 
 > 🛠 2026-08-29 归档后做过一次健壮性修复：三语转换器负数/小数解析与错误处理加固，CI 回归用例 6 → 10（详见 `git log`），此后继续封存不再维护。
+
+## 本地运行（归档版）
+
+```bash
+# 三语内置测试（进制转换断言 + 查找/排序验证 + 耗时实测）
+python3 src/benchmark.py --test
+node    src/benchmark.js              # 不带参数即运行测试
+g++ -O2 -std=c++11 -Wall -Wextra src/benchmark.cpp -o benchmark && ./benchmark
+
+# C++ JSON 批量用例（格式见 .github/workflows/ci.yml）
+./benchmark cases.json
+
+# 进制转换（负数、小数解析三语一致；py/js 的转出仅支持整数）
+python3 src/benchmark.py --convert --number=-5  --from-base=10 --to-base=2    # -> -101
+python3 src/benchmark.py --convert --number=0.1 --from-base=2  --to-base=10   # -> 0.5
+node    src/benchmark.js --convert -101 2 10                                  # -> -5
+node    src/benchmark.js --convert 0.1 2 10                                   # -> 0.5
+```
+
+> 以 `-` 开头的参数值请用 `--number=-5` 等号写法，argparse 会把裸的 `-5` 当作选项。
 
 ## 许可证
 
