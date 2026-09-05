@@ -18,7 +18,7 @@ python3 python/base_converter.py 255 10 16     # -> FF
 node    js/base_converter.js -123 10 2          # -> -1111011
 ./cpp/base_converter 10.5 10 16                 # -> A.8（先编译）
 
-# 内置测试（39 个断言，CI 自动执行）
+# 内置测试（45 个断言，CI 自动执行）
 python3 python/base_converter.py --test
 node    js/base_converter.js --test
 ./cpp/base_converter --test
