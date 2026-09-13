@@ -2,7 +2,7 @@
 
 > 🔀 **本仓库的进制转换功能已合并至 [programming-exercises](https://github.com/xiaomaozjj666/programming-exercises)（2026-08-22）。**
 >
-> 三语一致的新版转换器（支持负数与小数、任意精度整数）位于：
+> 新版转换器（三份实现各自独立，均支持负数与小数，整数精度上限不同）位于：
 > - [`python/base_converter.py`](https://github.com/xiaomaozjj666/programming-exercises/blob/main/python/base_converter.py)（`int` + `Fraction` 精确小数）
 > - [`js/base_converter.js`](https://github.com/xiaomaozjj666/programming-exercises/blob/main/js/base_converter.js)（`BigInt`，避免 2^53 精度丢失）
 > - [`cpp/base_converter.cpp`](https://github.com/xiaomaozjj666/programming-exercises/blob/main/cpp/base_converter.cpp)（`long long` + `double`，教学示例）
@@ -38,7 +38,7 @@ node    js/base_converter.js --test
 
 ![三语算法耗时实测图表](docs/images/benchmark.svg)
 
-> 🛠 2026-08-29 归档后做过一次健壮性修复：三语转换器负数/小数解析与错误处理加固，CI 回归用例 6 → 10（详见 `git log`），此后继续封存不再维护。
+> 🛠 2026-08-29 归档后做过一次健壮性修复：三语转换器的错误处理均有加固，其中 py/js 还补齐了 '+' 正号前缀与小数解析（归档版 C++ 本就支持负数与小数，只是不认 '+'，未同步）；CI 回归用例 6 → 10（详见 `git log`）。以上均为归档快照，新版已迁至 programming-exercises，此后不再维护。
 
 ## 本地运行（归档版）
 
