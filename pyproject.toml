@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "base-conversion"
+version = "1.0.0"
+description = "Exact arbitrary-base (2-62) number conversion: lossless big ints, Fraction-precise decimals, repeating-digit notation"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "xiaomaozjj666" }]
+requires-python = ">=3.9"
+keywords = ["base", "radix", "conversion", "numbers", "fractions", "cli"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/xiaomaozjj666/base-conversion"
+Issues = "https://github.com/xiaomaozjj666/base-conversion/issues"
+Changelog = "https://github.com/xiaomaozjj666/base-conversion/releases"
+
+[project.scripts]
+baseconv = "base_conversion.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.5", "mypy>=1.8", "build>=1.0"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# 3.9 兼容的类型写法（from __future__ import annotations 已覆盖注解位置）
+"tests/*" = ["SIM115"]
+
+[tool.mypy]
+python_version = "3.9"
+files = ["src"]
+warn_unused_ignores = true
+warn_redundant_casts = true
