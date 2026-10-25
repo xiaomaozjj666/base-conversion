@@ -1,5 +1,7 @@
 # base-conversion
 
+> **⚠️ 本仓库已归档**：进制转换已迁入 [`programming-exercises`](https://github.com/xiaomaozjj666/programming-exercises)（`python|js|cpp/base_converter.*` 三语实现），算法基准并入其 `benchmark/`。本仓库仅保留库源码与基准的历史快照，不再演进——测试与 CI 持续可跑，但不再接受功能变更。
+
 <p align="center">
   <a href="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml"><img src="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <img src="https://img.shields.io/badge/python-3.9%2B-blue" alt="Python 3.9+" />
@@ -47,7 +49,7 @@ Fraction(1, 2)
 >>> to_decimal("0.(3)", 10)       # 且可无损解析回来
 Fraction(1, 3)
 >>> to_base(10**100 + 7, 62)      # 大整数无损
-'4Wm5fNnOOhv5...'
+'QCyvrY2MJnQFGlUHTCA95Xz8AHOrLuoIO0fuPkHHCcyXy9ytM5N1lqsh'
 ```
 
 命令行：

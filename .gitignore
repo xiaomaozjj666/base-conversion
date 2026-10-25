@@ -2,7 +2,7 @@
 reports/
 
 # 编译产物（archive 归档脚本的本地产物）
-benchmark
+/benchmark
 *.o
 *.obj
 *.exe

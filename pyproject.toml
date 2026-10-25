@@ -12,7 +12,7 @@ authors = [{ name = "xiaomaozjj666" }]
 requires-python = ">=3.9"
 keywords = ["base", "radix", "conversion", "numbers", "fractions", "cli"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 6 - Mature",
     "Intended Audience :: Developers",
 
     "Operating System :: OS Independent",
@@ -60,7 +60,9 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 "tests/*" = ["SIM115"]
 
 [tool.mypy]
-python_version = "3.9"
+# python_version = "3.9" 已删除：mypy ≥2 不再支持 3.9 目标，该行被静默拒绝
+# （死配置）。代码仍保持 3.9 兼容（requires-python = ">=3.9" 不变），
+# 类型检查在 CI 的 3.12 解释器下执行。
 files = ["src"]
 warn_unused_ignores = true
 warn_redundant_casts = true

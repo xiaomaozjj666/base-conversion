@@ -188,7 +188,7 @@ def _fraction_to_digits(frac: Fraction, base: int) -> str:
     return "".join(digits)
 
 
-def to_base(value: Fraction | float, base: int) -> str:
+def to_base(value: int | Fraction | float, base: int) -> str:
     """Render *value* as a string in *base*.
 
     Args:
