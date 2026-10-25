@@ -1,7 +1,7 @@
 # 运行输出
 reports/
 
-# 编译产物
+# 编译产物（archive 归档脚本的本地产物）
 benchmark
 *.o
 *.obj
@@ -9,3 +9,13 @@ benchmark
 
 # Python
 __pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+dist/
+build/
+.coverage
+htmlcov/
