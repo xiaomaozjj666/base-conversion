@@ -19,16 +19,45 @@ import sys
 from base_conversion import __version__
 from base_conversion.converter import to_base, to_decimal
 
-# 形如 "-123" / "+12.5" 的首个位置参数会被 argparse 误认成选项；
-# 自动在其前插入 ``--`` 分隔符。
-_LEADING_NUMBER = re.compile(r"^[-+][0-9]")
+# 带符号输入可能以数字、字母、小数点或循环括号开头，如 -123、-FF、-.5。
+_SIGNED_NUMBER = re.compile(r"^[-+](?=[0-9A-Za-z.(])")
+_OPTION_FLAGS = frozenset(
+    {"-h", "--help", "-V", "--version", "-n", "--number", "-f", "--from-base", "-t", "--to-base"}
+)
+
+
+def _is_signed_number(value: str) -> bool:
+    """判断参数是否形如带符号数字，而非 CLI 自身的选项。"""
+    return value not in _OPTION_FLAGS and _SIGNED_NUMBER.match(value) is not None
 
 
 def _normalize_argv(argv: list[str]) -> list[str]:
-    """首参数是带符号数字时插入 ``--``，避免被当作选项解析。"""
-    if argv and _LEADING_NUMBER.match(argv[0]) and argv[0] not in ("-h", "--help"):
-        return ["--", *argv]
-    return argv
+    """避免 argparse 将带符号数字误判为选项。
+
+    ``-n``/``--number`` 后的带符号值改写为 ``--number=VALUE``；首个位置参数
+    为带符号值时保留原有兼容行为，自动在其前插入 ``--``。
+    """
+    normalized: list[str] = []
+    index = 0
+    while index < len(argv):
+        arg = argv[index]
+        if arg == "--":
+            normalized.extend(argv[index:])
+            break
+        if (
+            arg in ("-n", "--number")
+            and index + 1 < len(argv)
+            and _is_signed_number(argv[index + 1])
+        ):
+            normalized.append(f"--number={argv[index + 1]}")
+            index += 2
+            continue
+        normalized.append(arg)
+        index += 1
+
+    if normalized and _is_signed_number(normalized[0]):
+        return ["--", *normalized]
+    return normalized
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,10 +69,12 @@ def build_parser() -> argparse.ArgumentParser:
         ),
         epilog=(
             "示例:\n"
-            "  baseconv 255 10 16        # → FF\n"
-            "  baseconv -- -123 10 2     # → -1111011（负数用 -- 分隔）\n"
-            "  baseconv -n 0.1 -f 2 -t 10  # → 0.5（二进制小数精确转十进制）"
+            "  baseconv 255 10 16           # → FF\n"
+            "  baseconv -- -FF 16 10        # → -255（位置参数负数用 -- 分隔）\n"
+            "  baseconv -n -FF -f 16 -t 10  # → -255（-n 可直接接收负数值）\n"
+            "  baseconv -n 0.1 -f 2 -t 10   # → 0.5（二进制小数精确转十进制）"
         ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "-V",
@@ -55,11 +86,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "number",
         nargs="?",
-        help="待转换的数字（源进制下的字符串形式；也可用 -n 提供）",
+        help="待转换的数字（源进制字符串；负数可用 -- 分隔或用 -n 提供）",
     )
     parser.add_argument("from_base", nargs="?", type=int, default=10, help="源进制（默认 10）")
     parser.add_argument("to_base_pos", nargs="?", type=int, default=10, help="目标进制（默认 10）")
-    parser.add_argument("-n", "--number", dest="number_opt", help="数字（选项式，负数推荐）")
+    parser.add_argument(
+        "-n", "--number", dest="number_opt", help="数字（可直接接收 -FF、-0.1 等负数值）"
+    )
     parser.add_argument(
         "-f", "--from-base", dest="from_base_opt", type=int, help="源进制（选项式，优先于位置）"
     )

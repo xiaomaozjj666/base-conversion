@@ -41,6 +41,23 @@ def test_negative_with_leading_number_autocorrected(
     assert out.strip() == "-1111011"
 
 
+@pytest.mark.parametrize(
+    ("argv", "expected"),
+    [
+        (("-FF", "16", "10"), "-255"),
+        (("--", "-FF", "16", "10"), "-255"),
+        (("-n", "-FF", "-f", "16", "-t", "10"), "-255"),
+        (("-n", "-0.1", "-f", "2", "-t", "10"), "-0.5"),
+    ],
+)
+def test_signed_number_forms(
+    capsys: pytest.CaptureFixture[str], argv: tuple[str, ...], expected: str
+) -> None:
+    code, out, _ = _run(capsys, *argv)
+    assert code == 0
+    assert out.strip() == expected
+
+
 def test_option_style(capsys: pytest.CaptureFixture[str]) -> None:
     code, out, _ = _run(capsys, "-n", "0.1", "-f", "2", "-t", "10")
     assert code == 0
@@ -60,6 +77,15 @@ def test_version_flag(capsys: pytest.CaptureFixture[str]) -> None:
     out = capsys.readouterr().out
     assert __version__ in out
     assert "base-conversion" in out
+
+
+def test_help_documents_signed_number_forms(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as exc:
+        main(["--help"])
+    assert exc.value.code == 0
+    out = capsys.readouterr().out
+    assert "baseconv -- -FF 16 10" in out
+    assert "baseconv -n -FF -f 16 -t 10" in out
 
 
 def test_error_exit_code_and_stderr(capsys: pytest.CaptureFixture[str]) -> None:

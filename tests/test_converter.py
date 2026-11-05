@@ -110,7 +110,7 @@ def test_to_base_bool_rejected() -> None:
 
 
 def test_to_base_non_integral_float_rejected() -> None:
-    with pytest.raises(ValueError, match="non-integral float"):
+    with pytest.raises(ValueError, match="pass a Fraction instead"):
         c.to_base(0.5, 10)
 
 
@@ -194,3 +194,5 @@ def test_legacy_aliases() -> None:
     assert c.binary_to_decimal("101") == 5
     assert c.decimal_to_hex(255) == "FF"
     assert c.hex_to_decimal("ff") == 255
+    for alias in (c.decimal_to_base, c.decimal_to_binary, c.decimal_to_hex):
+        assert alias.__annotations__["value"] == c.to_base.__annotations__["value"]

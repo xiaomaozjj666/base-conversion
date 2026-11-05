@@ -19,6 +19,7 @@ def main(argv: list[str] | None = None) -> int:
         "base_conversion/__init__.py",
         "base_conversion/converter.py",
         "base_conversion/cli.py",
+        "base_conversion/py.typed",
     )
     missing = [r for r in required if r not in names]
     if missing:

@@ -216,9 +216,7 @@ def to_base(value: int | Fraction | float, base: int) -> str:
         raise TypeError("value must be an int, Fraction, or integral float, not bool")
     if isinstance(value, float):
         if not value.is_integer():
-            raise ValueError(
-                f"non-integral float {value!r} is lossy; pass a str or Fraction instead"
-            )
+            raise ValueError(f"non-integral float {value!r} is lossy; pass a Fraction instead")
         value = int(value)
 
     if isinstance(value, Fraction):
@@ -243,7 +241,7 @@ def to_base(value: int | Fraction | float, base: int) -> str:
 # --- Backwards-compatible convenience aliases ---------------------------
 
 
-def decimal_to_base(value: Fraction | float, base: int) -> str:
+def decimal_to_base(value: int | Fraction | float, base: int) -> str:
     """Alias of :func:`to_base`: render a decimal value in *base*."""
     return to_base(value, base)
 
@@ -253,7 +251,7 @@ def base_to_decimal(s: str, base: int) -> int | Fraction:
     return to_decimal(s, base)
 
 
-def decimal_to_binary(value: Fraction | float) -> str:
+def decimal_to_binary(value: int | Fraction | float) -> str:
     """Alias of :func:`to_base` with ``base=2``."""
     return to_base(value, 2)
 
@@ -263,7 +261,7 @@ def binary_to_decimal(s: str) -> int | Fraction:
     return to_decimal(s, 2)
 
 
-def decimal_to_hex(value: Fraction | float) -> str:
+def decimal_to_hex(value: int | Fraction | float) -> str:
     """Alias of :func:`to_base` with ``base=16``."""
     return to_base(value, 16)
 

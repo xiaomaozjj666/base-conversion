@@ -6,7 +6,7 @@
   <a href="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml"><img src="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <img src="https://img.shields.io/badge/python-3.9%2B-blue" alt="Python 3.9+" />
   <img src="https://img.shields.io/badge/ruff-linted-261230" alt="Ruff" />
-  <img src="https://img.shields.io/badge/tests-70%20passed-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-76%20passed-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
 </p>
 
@@ -37,6 +37,7 @@ python -m pip install .
 ## 快速开始
 
 ```python
+>>> from fractions import Fraction
 >>> from base_conversion import to_base, to_decimal
 >>> to_base(255, 16)
 'FF'
@@ -55,9 +56,10 @@ Fraction(1, 3)
 命令行：
 
 ```bash
-baseconv 255 10 16           # → FF
-baseconv -- -123 10 2        # → -1111011（负数用 -- 分隔）
-baseconv -n 0.1 -f 2 -t 10   # → 0.5（选项式，负数推荐）
+baseconv 255 10 16              # → FF
+baseconv -- -FF 16 10           # → -255（位置参数负数用 -- 分隔）
+baseconv -n -FF -f 16 -t 10     # → -255（-n 可直接接收负数值）
+baseconv -n 0.1 -f 2 -t 10      # → 0.5（二进制小数精确转十进制）
 ```
 
 ## API
@@ -86,7 +88,7 @@ baseconv -n 0.1 -f 2 -t 10   # → 0.5（选项式，负数推荐）
 
 - 非法字符 / 文法错误 → `ValueError`（信息含具体字符与进制）；
 - 进制越界（非 2-62）→ `ValueError`；非 int 进制或 `bool` → `TypeError`；
-- `to_base` 收到非整数 `float` → `ValueError`（提示改用 `str` 或 `Fraction`——浮点表示本身有精度损失，转换它没有意义）。
+- `to_base` 收到非整数 `float` → `ValueError`（提示改用 `Fraction`；`to_base` 不接受数字字符串）。
 
 ## 与内置的性能关系
 
@@ -96,7 +98,7 @@ baseconv -n 0.1 -f 2 -t 10   # → 0.5（选项式，负数推荐）
 
 本仓库早期是三语言（C++ / Python / JS）进制转换 + 查找排序基准的对比实现，2026-09 归档整理后：
 
-- Python 部分重写为本库（2-62 进制、Fraction 精确小数、CLI、70 个测试）；
+- Python 部分重写为本库（2-62 进制、Fraction 精确小数、CLI、76 个测试）；
 - 三语言基准脚本保留在 [`archive/`](archive/)（历史快照，不再维护）；
 - 查找/排序算法练习与多语言题解迁移至 [programming-exercises](https://github.com/xiaomaozjj666/programming-exercises)。
 
@@ -106,7 +108,7 @@ baseconv -n 0.1 -f 2 -t 10   # → 0.5（选项式，负数推荐）
 
 ```bash
 python -m pip install -e ".[dev]"
-pytest                 # 70 个测试（含随机交叉验证与往返性质测试）
+pytest                 # 76 个测试（含随机交叉验证与往返性质测试）
 ruff check src tests   # 代码检查
 mypy src               # 类型检查
 python -m build        # 构建分发包
