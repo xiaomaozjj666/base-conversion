@@ -1,0 +1,96 @@
+# 正式发布由 v<pyproject 版本号> tag 触发；TestPyPI 仅能手动触发。
+# 两个发布任务均使用 Trusted Publishing（OIDC），不保存 PyPI 密码或 token。
+name: PyPI
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pypi-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: 读取包版本
+        id: version
+        shell: bash
+        run: |
+          version="$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+      - name: 安装构建与检查工具
+        run: python -m pip install build twine
+      - name: 构建 sdist 和 wheel
+        run: python -m build
+      - name: 验证 wheel 清单
+        run: python scripts/verify_wheel.py dist
+      - name: 检查分发元数据
+        run: twine check dist/*
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # 正式 publish 只接受 tag push，且 tag 必须严格等于 v<包版本>。
+    # 不匹配的 tag 会完成构建检查，但不会上传 PyPI。
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/') &&
+      github.ref_name == format('v{0}', needs.build.outputs.version)
+    permissions:
+      id-token: write
+    steps:
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: 发布到 PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          print-hash: true
+
+  testpypi:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # 与正式发布互斥：仅从 Actions 页面手动运行，不响应任何 tag。
+    if: github.event_name == 'workflow_dispatch'
+    environment:
+      name: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: 发布到 TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
+          print-hash: true

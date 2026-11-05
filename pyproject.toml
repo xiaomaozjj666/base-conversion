@@ -30,7 +30,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/xiaomaozjj666/base-conversion"
 Issues = "https://github.com/xiaomaozjj666/base-conversion/issues"
-Changelog = "https://github.com/xiaomaozjj666/base-conversion/releases"
+Changelog = "https://github.com/xiaomaozjj666/base-conversion/blob/main/CHANGELOG.md"
 
 [project.scripts]
 baseconv = "base_conversion.cli:main"

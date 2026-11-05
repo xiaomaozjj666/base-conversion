@@ -116,6 +116,8 @@ python -m build        # 构建分发包
 
 CI 在 Python 3.9-3.13 矩阵上运行测试，并执行 lint、类型检查与构建验证。
 
+维护者发布流程见 [docs/RELEASING.md](docs/RELEASING.md)，版本变更记录见 [CHANGELOG.md](CHANGELOG.md)。
+
 ## License
 
 [MIT](LICENSE)
