@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "base-conversion"
-version = "1.0.0"
+version = "1.0.1"
 description = "Exact arbitrary-base (2-62) number conversion: lossless big ints, Fraction-precise decimals, repeating-digit notation"
 readme = "README.md"
 license = "MIT"
