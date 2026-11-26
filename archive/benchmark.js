@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* 进制转换与算法复杂度基准测试 */
+/* 进制转换与算法复杂度基准测试（历史快照，勿参照：仅 2-36 进制，与主库 2-62 语义已分叉） */
 const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function decimalToBase(n, base) {

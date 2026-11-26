@@ -1,4 +1,5 @@
 // Base Conversion and Time Complexity Test Cases
+// 历史快照，勿参照：仅 2-36 进制，与主库 2-62 语义已分叉。
 // This file demonstrates base conversion functions and time complexity analysis
 
 #include <iostream>

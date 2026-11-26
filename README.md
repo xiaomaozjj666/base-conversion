@@ -6,7 +6,7 @@
   <a href="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml"><img src="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <img src="https://img.shields.io/badge/python-3.9%2B-blue" alt="Python 3.9+" />
   <img src="https://img.shields.io/badge/ruff-linted-261230" alt="Ruff" />
-  <img src="https://img.shields.io/badge/tests-76%20passed-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-77%20passed-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
 </p>
 
@@ -98,8 +98,8 @@ baseconv -n 0.1 -f 2 -t 10      # → 0.5（二进制小数精确转十进制）
 
 本仓库早期是三语言（C++ / Python / JS）进制转换 + 查找排序基准的对比实现，2026-09 归档整理后：
 
-- Python 部分重写为本库（2-62 进制、Fraction 精确小数、CLI、76 个测试）；
-- 三语言基准脚本保留在 [`archive/`](archive/)（历史快照，不再维护）；
+- Python 部分重写为本库（2-62 进制、Fraction 精确小数、CLI、77 个测试）；
+- 三语言基准脚本保留在 [`archive/`](archive/)——**历史快照，勿参照**：其中仍是 2-36 进制的旧实现，与本库 2-62 进制语义已分叉，详见 [`archive/README.md`](archive/README.md)；
 - 查找/排序算法练习与多语言题解迁移至 [programming-exercises](https://github.com/xiaomaozjj666/programming-exercises)。
 
 历史 benchmark 实测数据（2026-08-21 本机，三语言算法对比）见 [`docs/images/benchmark.svg`](docs/images/benchmark.svg)。
@@ -108,7 +108,7 @@ baseconv -n 0.1 -f 2 -t 10      # → 0.5（二进制小数精确转十进制）
 
 ```bash
 python -m pip install -e ".[dev]"
-pytest                 # 76 个测试（含随机交叉验证与往返性质测试）
+pytest                 # 77 个测试（含随机交叉验证与往返性质测试）
 ruff check src tests   # 代码检查
 mypy src               # 类型检查
 python -m build        # 构建分发包
