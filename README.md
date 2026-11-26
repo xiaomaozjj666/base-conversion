@@ -1,6 +1,6 @@
 # base-conversion
 
-> **⚠️ 本仓库已归档**：进制转换已迁入 [`programming-exercises`](https://github.com/xiaomaozjj666/programming-exercises)（`python|js|cpp/base_converter.*` 三语实现），算法基准并入其 `benchmark/`。本仓库仅保留库源码与基准的历史快照，不再演进——测试与 CI 持续可跑，但不再接受功能变更。
+> **⚠️ 本仓库已归档**：进制转换已迁入 [`programming-exercises`](https://github.com/xiaomaozjj666/programming-exercises)（`python|js|cpp/base_converter.*` 三语实现），算法基准并入其 `benchmark/`。本仓库仅保留库源码与基准的历史快照，不再演进——归档前最后一次 CI 为绿（2026-11-26），归档后不再接受功能变更。
 
 <p align="center">
   <a href="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml"><img src="https://github.com/xiaomaozjj666/base-conversion/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
